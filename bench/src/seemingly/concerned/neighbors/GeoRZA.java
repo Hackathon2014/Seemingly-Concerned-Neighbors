@@ -52,10 +52,9 @@ public class GeoRZA {
    */
   private static float[][] goTimeCalcZeroOff(float th, float v1, float v2, 
       float zt, int n) {
-    float[][] t0 = new float[2][n];
+    float[][] t0 = new float[n][2];
     for (int i=0; i<n; ++i) {
-      t0[0][i] = (2.0f*zt)/v1;
-      t0[1][i] = t0[0][i] + th/v2;
+      t0[i] = goTimeCalcZeroOff(th,v1,v2,zt);
     }
     return t0;
   }
@@ -87,12 +86,12 @@ public class GeoRZA {
   private static float[][] goTimeCalcNonZeroOff(float[][] t0, float[][] vrms, 
       float[] off) {
     int n = off.length;
-    float[][] tx = new float[2][n];
+    float[][] tx = new float[n][2];
+    System.out.println("vrms lengths "+vrms.length+" and "+vrms[0].length);
+    System.out.println("t0 lengths "+t0.length+" and "+t0[0].length);
+    System.out.println("off length "+off.length);
     for (int i=0; i<n; ++i) {
-      tx[0][i] = sqrt(t0[0][i]*t0[0][i] + 
-          (off[i]/vrms[0][i])*(off[i]/vrms[0][i]));
-      tx[1][i] = sqrt(t0[1][i]*t0[1][i] + 
-          (off[i]/vrms[1][i])*(off[i]/vrms[1][i]));
+      tx[i] = goTimeCalcNonZeroOff(t0[i],vrms[i],off[i]); 
     }
     return tx;
   }
@@ -119,41 +118,48 @@ public class GeoRZA {
    * @return array[2][#off] of RMS velocities
    */
   private static float[][] goVrmsCalc(float[][] t, float v1, float v2) {
-    int n = t[0].length;
-    float[][] vrms = new float[2][n];
+    int n = t.length;
+    float[][] vrms = new float[n][2];
     for (int i=0; i<n; ++i) {
-      vrms[0][i] = v1;
-      vrms[1][i] = sqrt((v1*v1*t[0][i] + v2*v2*t[1][i])/(t[0][i] + t[1][i]));
+      vrms[i] = goVrmsCalc(t[i],v1,v2);
     }
     return vrms;
   }
 
   /**
    * Calculates the delta RMS velocities.
-   * @param t
-   * @param vrms 
-   * @param off
-   * @param freq
-   * @param A
+   * @param t the times for the top and bottom of layer
+   * @param vrms the RMS velocities 
+   * @param off offset between source and receiver
+   * @param freq the peak frequency of the source
+   * @param A proportionality constants
    * @return array[2] delta RMS velocities
    */
-  private static void goDVrms(float[] t, float[] vrms, float off, float freq,
-      float[] A) {
-    float delvrms 
+  private static float[] goDelVrms(float[] t, float[] vrms, float off, 
+      float freq, float[] A) {
+    float[] delvrms = new float[2];
+    delvrms[0] = A[0]*(t[0]*pow(vrms[0],3))/(freq*off*off);
+    delvrms[1] = A[1]*(t[1]*pow(vrms[1],3))/(freq*off*off);
+    return delvrms;
   }
 
   /**
    * Calculates the delta RMS velocities.
-   * @param t
-   * @param vrms 
-   * @param off
-   * @param freq
-   * @param A
+   * @param t the times for the top and bottom of layer
+   * @param vrms the RMS velocities 
+   * @param off offset between source and receiver
+   * @param freq the peak frequency of the source
+   * @param A proportionality constants
    * @return array[2][#off] delta RMS velocities
    */
-  private static void goDVrms(float[][] t, float[][] vrms, float[] off, 
+  private static float[][] goDelVrms(float[][] t, float[][] vrms, float[] off,
       float freq, float[] A) {
-
+    int n = off.length;
+    float[][] delvrms = new float[n][2];
+    for (int i=0; i<n; ++i) {
+      delvrms[i] = goDelVrms(t[i],vrms[i],off[i],freq,A);
+    }
+    return delvrms;
   }
 
   /**
@@ -177,22 +183,19 @@ public class GeoRZA {
    *********************************************************************** 
    * TESTING.
    */
-  private static float goDepthCalc(float tx, float vrms, float off) {
-    float r = (tx*vrms)/2.0f;
+  private static float goDepthCalc(float[] tx, float[] vrms, float off) {
+    float r = (tx[0]*vrms[0])/2.0f;
     float theta = asin(off/(2.0f*r));
-    float z = cos(theta)*tx*vrms/2.0f;
+    float z = cos(theta)*tx[0]*vrms[0]/2.0f;
     return z;
   }
 
-  private static float[] goDepthCalc(float[] tx, float[] vrms, float[] off) {
+  private static float[] goDepthCalc(float[][] tx, float[][] vrms, 
+      float[] off) {
     int n = off.length;
-    float[] theta = new float[n];
     float[] z = new float[n];
-    float[] r = new float[n];
     for (int i=0; i<n; ++i) {
-      r[i] = (tx[i]*vrms[i])/2.0f;
-      theta[i] = asin(off[i]/(2.0f*r[i]));
-      z[i] = cos(theta[i])*tx[i]*vrms[i]/2.0f;
+      z[i] = goDepthCalc(tx[i],vrms[i],off[i]);
     }
     return z;
   }
@@ -204,6 +207,7 @@ public class GeoRZA {
     System.out.println("The RMS velocity 2 is "+vrms[1]);
   }
 
+  /************************MAIN METHOD**********************************/
     public static void main(String[] args) {
     SwingUtilities.invokeLater(new Runnable() {
       public void run() {
@@ -220,27 +224,29 @@ public class GeoRZA {
         }
 
         float[] t0 = new float[2];    //(s)
-        float[][] t0a = new float[2][n];    //(s)
+        float[][] t0a = new float[n][2];    //(s)
         float[] tx = new float[2];    //(s)
-        float[][] txa = new float[2][n];    //(s)
+        float[][] txa = new float[n][2];    //(s)
         float[] vrms = new float[2]; //(m/s)
-        float[][] vrmsa = new float[2][n]; //(m/s)
+        float[][] vrmsa = new float[n][2]; //(m/s)
         float[] zu = new float[4];   //(m) 
 
         t0a = goTimeCalcZeroOff(th,v1,v2,zt,n);
         vrmsa = goVrmsCalc(t0a,v1,v2);
         txa = goTimeCalcNonZeroOff(t0a,vrmsa,offa);
+
         t0 = goTimeCalcZeroOff(th,v1,v2,zt);
         vrms = goVrmsCalc(t0,v1,v2);
         tx = goTimeCalcNonZeroOff(t0,vrms,off);
+
         //zu = goDepthUncertainty(t0,vrms);
-        goPrint(t0,vrms);
-        za = goDepthCalc(txa[0],vrmsa[0],offa);
-        float z = goDepthCalc(tx[0],vrms[0],off);
+        float z = goDepthCalc(tx,vrms,off);
+        za = goDepthCalc(txa,vrmsa,offa);
         for (int i=0; i<n; ++i){
           System.out.println(za[i]);
         }
         System.out.println(z);
+        goPrint(t0,vrms);
       }
     });
   }
