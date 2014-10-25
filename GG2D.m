@@ -15,7 +15,7 @@ end
 nx=length(xs)-1; %since number of nodes is one greater than cells in x
 nz=length(zs)-1;
 n=nx*nz;
-C=2*6.67384E1;   %twice the gravitational constant
+c=2*6.67384E1;   %twice the gravitational constant
 nd=length(zo);
 XX=zeros(nd,n);
 XZ=XX;
@@ -48,9 +48,9 @@ else %second dimension is fastest
         h1=h2;
     end
 end
-XX=G*XX;
-XZ=G*XZ;
-ZZ=G*ZZ;
+XX=c*XX;
+XZ=c*XZ;
+ZZ=c*ZZ;
 end
 
 %% 'private' methods 
