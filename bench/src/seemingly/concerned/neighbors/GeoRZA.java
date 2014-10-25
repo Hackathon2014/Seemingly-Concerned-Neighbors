@@ -18,7 +18,7 @@ import static edu.mines.jtk.util.ArrayMath.*;
  * constraints for a gravity inversion that inverts for the depth of top and
  * bottom of a layer in the subsurface. Throughout this software we will be
  * using units of meters (m), seconds (s), and meters/second (m/s).
- * @version 25.10.2014 12:01pm
+ * @version 25.10.2014 4:42pm
  */
 
 public class GeoRZA {
@@ -163,20 +163,81 @@ public class GeoRZA {
   }
 
   /**
-   * Calculates the uncertainty in the depth of the top and bottom of layer.
-   * @param t the times for the top and bottom of layer
-   * @param vrms the RMS velocities 
-   * @return array[4] the uncertainties in top and bottom depth values
+   * Calculates the uncertainty in the depth of the top of layer.
+   * @param t times for the top of layer
+   * @param vrms RMS velocities 
+   * @param off offset between source and receiver
+   * @param delvrms delta RMS velocities
+   * @return array[2] the uncertainties in top depth values (plus/minus)
    */
-  private static float[] goDepthUncertainty(float[] t, float[] vrms) {
-    float[] zu = new float[4];
-    float ztm, ztp, zbm, zbp;
-    ztm = (t[0]/2.0f)*(vrms[0]); 
-    //ztp = 
-    //zbm = 
-    //zbp = 
+  private static float[] goDepthUncertaintyT(float[] t, float[] vrms, 
+      float off, float[] delvrms) {
+    float[] zt = new float[2];
+    float ztp, ztm;
+    float r = (t[0]*vrms[0])/2.0f;
+    float theta = asin(off/(2.0f*r));
+    ztp = (cos(theta)*t[0]/2.0f)*(vrms[0]+delvrms[0]);
+    ztm = (cos(theta)*t[0]/2.0f)*(vrms[0]-delvrms[0]);
+    zt[0] = ztp;
+    zt[1] = ztm;
+    return zt;
+  }
 
-    return zu;
+  /**
+   * Calculates the uncertainty in the depth of the top of layer.
+   * @param t times for the top of layer
+   * @param vrms RMS velocities 
+   * @param off offset between source and receiver
+   * @param delvrms delta RMS velocities
+   * @return array[2] the uncertainties in top depth values (plus/minus)
+   */
+  private static float[][] goDepthUncertaintyT(float[][] t, float[][] vrms, 
+      float off[], float[][] delvrms) {
+    int n = off.length;
+    float[][] zt = new float[n][2];
+    for (int i=0; i<n; ++i) {
+      zt[i] = goDepthUncertaintyT(t[i],vrms[i],off[i],delvrms[i]);
+    }
+    return zt;
+  }
+
+  /**
+   * Calculates the uncertainty in the depth of the bottom of layer.
+   * @param t times for the bottom of layer
+   * @param vrms RMS velocities 
+   * @param off offset between source and receiver
+   * @param delvrms delta RMS velocities
+   * @return array[2] the uncertainties in bottom depth values (plus/minus)
+   */
+  private static float[] goDepthUncertaintyB(float[] t, float[] vrms, 
+      float off, float[] delvrms) {
+    float[] zb = new float[2];
+    float zbp, zbm;
+    float r = (t[1]*vrms[1])/2.0f;
+    float theta = asin(off/(2.0f*r));
+    zbp = (cos(theta)*t[1]/2.0f)*(vrms[1]+delvrms[1]);
+    zbm = (cos(theta)*t[1]/2.0f)*(vrms[1]-delvrms[1]);
+    zb[0] = zbp;
+    zb[1] = zbm;
+    return zb;
+  }
+
+  /**
+   * Calculates the uncertainty in the depth of the bottom of layer.
+   * @param t times for the bottom of layer
+   * @param vrms RMS velocities 
+   * @param off offset between source and receiver
+   * @param delvrms delta RMS velocities
+   * @return array[2] the uncertainties in bottom depth values (plus/minus)
+   */
+  private static float[][] goDepthUncertaintyB(float[][] t, float[][] vrms, 
+      float[] off, float[][] delvrms) {
+    int n = off.length;
+    float[][] zb = new float[n][2];
+    for (int i=0; i<n; ++i) {
+      zb[i] = goDepthUncertaintyB(t[i],vrms[i],off[i],delvrms[i]);
+    }
+    return zb;
   }
 
   /**
@@ -211,36 +272,49 @@ public class GeoRZA {
     public static void main(String[] args) {
     SwingUtilities.invokeLater(new Runnable() {
       public void run() {
-        int n = 300;                //# of offsets
-        float th = 70;              //(m)
-        float v1 = 2000;            //(m/s) 
-        float v2 = 2200;            //(m/s) 
-        float zt = 500;             //(m)
-        float off = 300;          //(m)
+        int n = 300;                //# of offsets/ offset value in (m)
+        float th = 70.0f;           //(m)
+        float v1 = 2000.0f;         //(m/s) 
+        float v2 = 2200.0f;         //(m/s) 
+        float zt = 500.0f;          //(m)
+        float freq = 25.0f;         //(Hz)
         float[] offa = new float[n];//(m)
-        float[] za = new float[n];   //(m)
+        float[] za = new float[n];  //(m)
         for (int i=0; i<n; ++i) {
           offa[i] = i;
         }
 
-        float[] t0 = new float[2];    //(s)
+        float[] t0 = new float[2];          //(s)
         float[][] t0a = new float[n][2];    //(s)
-        float[] tx = new float[2];    //(s)
+        float[] tx = new float[2];          //(s)
         float[][] txa = new float[n][2];    //(s)
-        float[] vrms = new float[2]; //(m/s)
-        float[][] vrmsa = new float[n][2]; //(m/s)
-        float[] zu = new float[4];   //(m) 
+        float[] vrms = new float[2];        //(m/s)
+        float[][] vrmsa = new float[n][2];  //(m/s)
+        float[] delvrms = new float[2];     //(m/s)
+        float[][] delvrmsa = new float[n][2];//(m/s)
+        float[] zut = new float[2];
+        float[][] zuta = new float[n][2];
+        float[] zub = new float[2];
+        float[][] zuba = new float[n][2];
+        float[] A = {2.0f,2.0f};
 
+        // Calculations using a single offset value
+        t0 = goTimeCalcZeroOff(th,v1,v2,zt);
+        vrms = goVrmsCalc(t0,v1,v2);
+        tx = goTimeCalcNonZeroOff(t0,vrms,n);
+        delvrms = goDelVrms(tx,vrms,n,freq,A);
+        zut = goDepthUncertaintyT(tx,vrms,n,delvrms);
+        zub = goDepthUncertaintyB(tx,vrms,n,delvrms);
+        // Calculations using an array of offset values
         t0a = goTimeCalcZeroOff(th,v1,v2,zt,n);
         vrmsa = goVrmsCalc(t0a,v1,v2);
         txa = goTimeCalcNonZeroOff(t0a,vrmsa,offa);
-
-        t0 = goTimeCalcZeroOff(th,v1,v2,zt);
-        vrms = goVrmsCalc(t0,v1,v2);
-        tx = goTimeCalcNonZeroOff(t0,vrms,off);
+        delvrmsa = goDelVrms(txa,vrmsa,offa,freq,A);
+        zuta = goDepthUncertaintyT(txa,vrmsa,offa,delvrmsa);
+        zuba = goDepthUncertaintyB(txa,vrmsa,offa,delvrmsa);
 
         //zu = goDepthUncertainty(t0,vrms);
-        float z = goDepthCalc(tx,vrms,off);
+        float z = goDepthCalc(tx,vrms,n);
         za = goDepthCalc(txa,vrmsa,offa);
         for (int i=0; i<n; ++i){
           System.out.println(za[i]);
