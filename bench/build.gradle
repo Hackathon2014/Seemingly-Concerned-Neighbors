@@ -2,7 +2,7 @@ apply plugin: 'java'
 
 defaultTasks 'compileJava','jar'
 
-description = "Elias' research"
+description = "GeoRZA app"
 sourceCompatibility = 1.7
 
 sourceSets {
@@ -17,7 +17,7 @@ sourceSets {
 }
 
 jar {
-  baseName 'ea'
+  baseName 'GeoRZA'
   manifest {
     attributes 'Implementation-Title': project.description
   }
