@@ -14,14 +14,16 @@ dm2=50; %spacing in x we want
 %% Section 0: Define coordinates for observations and model
 
 %observations
-so1=Sampling;
+% so1=Sampling;
 so2=Sampling;
-no1=100; do1=10; fo1=50;
-no2=1000; do2=0; fo2=-100; %constant elevation
-so1.set(no1,do1,fo1);
+do2=20;
+no2=floor(2*xmax/do2);
+fo2=-xmax;
+fheight=-0.01;
+% so1.set(no1,do1,fo1);
 so2.set(no2,do2,fo2);
 xobs=so2.getA;
-zobs=fo2*ones(no2);
+zobs=fheight*ones(no2,1)';
 
 %model
 %center of cells
@@ -46,9 +48,13 @@ snd1a=getA(snd1);
 snd2a=getA(snd2);
 
 %% Section 1: Forward model data
-big=100;
+big=0.00010;
 ztrue=[zt;zt+h];
 xtrue=[-(big+1)*xmax;(big)*xmax];
+xmid=mean(xtrue);
+zmid=mean(xtrue);
+rho_true=1.0; %true density contrast of layer [g/cc]
+
 [XX,XZ,ZZ]=GG2D(xtrue,ztrue,xobs,zobs);
 
 
