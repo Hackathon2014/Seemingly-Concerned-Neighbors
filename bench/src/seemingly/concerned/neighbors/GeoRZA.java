@@ -18,7 +18,7 @@ import static edu.mines.jtk.util.ArrayMath.*;
  * constraints for a gravity inversion that inverts for the depth of top and
  * bottom of a layer in the subsurface. Throughout this software we will be
  * using units of meters (m), seconds (s), and meters/second (m/s).
- * @version 25.10.2014 4:42pm
+ * @version 25.10.2014 4:57pm
  */
 
 public class GeoRZA {
@@ -284,18 +284,18 @@ public class GeoRZA {
           offa[i] = i;
         }
 
-        float[] t0 = new float[2];          //(s)
-        float[][] t0a = new float[n][2];    //(s)
-        float[] tx = new float[2];          //(s)
-        float[][] txa = new float[n][2];    //(s)
-        float[] vrms = new float[2];        //(m/s)
-        float[][] vrmsa = new float[n][2];  //(m/s)
-        float[] delvrms = new float[2];     //(m/s)
+        float[] t0 = new float[2];           //(s)
+        float[][] t0a = new float[n][2];     //(s)
+        float[] tx = new float[2];           //(s)
+        float[][] txa = new float[n][2];     //(s)
+        float[] vrms = new float[2];         //(m/s)
+        float[][] vrmsa = new float[n][2];   //(m/s)
+        float[] delvrms = new float[2];      //(m/s)
         float[][] delvrmsa = new float[n][2];//(m/s)
-        float[] zut = new float[2];
-        float[][] zuta = new float[n][2];
-        float[] zub = new float[2];
-        float[][] zuba = new float[n][2];
+        float[] zut = new float[2];          //(m)
+        float[][] zuta = new float[n][2];    //(m)
+        float[] zub = new float[2];          //(m)
+        float[][] zuba = new float[n][2];    //(m)
         float[] A = {2.0f,2.0f};
 
         // Calculations using a single offset value
@@ -313,7 +313,6 @@ public class GeoRZA {
         zuta = goDepthUncertaintyT(txa,vrmsa,offa,delvrmsa);
         zuba = goDepthUncertaintyB(txa,vrmsa,offa,delvrmsa);
 
-        //zu = goDepthUncertainty(t0,vrms);
         float z = goDepthCalc(tx,vrms,n);
         za = goDepthCalc(txa,vrmsa,offa);
         for (int i=0; i<n; ++i){
