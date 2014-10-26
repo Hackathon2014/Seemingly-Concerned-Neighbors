@@ -17,7 +17,7 @@ import static edu.mines.jtk.util.ArrayMath.*;
  * constraints for a gravity inversion that inverts for the depth of top and
  * bottom of a layer in the subsurface. Throughout this software we will be
  * using units of meters (m), seconds (s), and meters/second (m/s).
- * @version 26.10.2014 11:37am
+ * @version 26.10.2014 11:53am
  */
 
 public class GeoRZA {
