@@ -18,19 +18,19 @@ import static edu.mines.jtk.util.ArrayMath.*;
  * constraints for a gravity inversion that inverts for the depth of top and
  * bottom of a layer in the subsurface. Throughout this software we will be
  * using units of meters (m), seconds (s), and meters/second (m/s).
- * @version 26.10.2014 10:32am
+ * @version 26.10.2014 11:37am
  */
 
 public class GeoRZA {
 
   public GeoRZA(float th, float v1, float v2, float zt, float freq, 
       float offset) {
-    this.th = th;
-    this.v1 = v1;
-    this.v2 = v2;
-    this.zt = zt;
-    this.freq = freq;
-    this.offset = offset;
+    _th = th;
+    _v1 = v1;
+    _v2 = v2;
+    _zt = zt;
+    _freq = freq;
+    _offset = offset;
   }
 
   /**
@@ -40,8 +40,8 @@ public class GeoRZA {
    */
   private float[] goTimeCalcZeroOff() {
     float[] t0 = new float[2];
-    t0[0] = (2.0f*zt)/v1;
-    t0[1] = t0[0] + th/v2;
+    t0[0] = (2.0f*_zt)/_v1;
+    t0[1] = t0[0] + _th/_v2;
     return t0;
   }
 
@@ -100,8 +100,8 @@ public class GeoRZA {
    */
   private float[] goVrmsCalc(float[] t) {
     float[] vrms = new float[2];
-    vrms[0] = v1;
-    vrms[1] = sqrt((v1*v1*t[0] + v2*v2*t[1])/(t[0] + t[1]));
+    vrms[0] = _v1;
+    vrms[1] = sqrt((_v1*_v1*t[0] + _v2*_v2*t[1])/(t[0] + t[1]));
     return vrms;
   }
 
@@ -128,8 +128,8 @@ public class GeoRZA {
    */
   private float[] goDelVrms(float[] t, float[] vrms, float offset) {
     float[] delvrms = new float[2];
-    delvrms[0] = A[0]*(t[0]*pow(vrms[0],3))/(freq*offset*offset);
-    delvrms[1] = A[1]*(t[1]*pow(vrms[1],3))/(freq*offset*offset);
+    delvrms[0] = _A[0]*(t[0]*pow(vrms[0],3))/(_freq*offset*offset);
+    delvrms[1] = _A[1]*(t[1]*pow(vrms[1],3))/(_freq*offset*offset);
     return delvrms;
   }
 
@@ -254,8 +254,8 @@ public class GeoRZA {
   }
 
   /****************************PRIVATE*********************************/
-  private float th,v1,v2,zt,freq,offset;
-  private float[] A = {4.0f,4.0f}; //proportionality constant
+  private float _th,_v1,_v2,_zt,_freq,_offset;
+  private float[] _A = {4.0f,4.0f}; //proportionality constant
 
   /************************MAIN METHOD**********************************/
   public static void main(String[] args) {
@@ -309,7 +309,7 @@ public class GeoRZA {
     za = grza.goDepthCalc(txa,vrmsa,offa);
     for (int i=0; i<noff; ++i){
       //System.out.println(za[i]);
-      System.out.println(grza.th);
+      System.out.println(grza._A[0]);
     }
     System.out.println(z);
     grza.goPrint(t0,vrms);
