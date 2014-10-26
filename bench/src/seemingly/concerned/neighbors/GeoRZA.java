@@ -41,7 +41,7 @@ public class GeoRZA {
    * @param freq peak frequency of the source
    * @param offset offset value between source and reciever
    */
-  private void setValues(float th, float v1, float v2, float zt, float freq, 
+  public void setValues(float th, float v1, float v2, float zt, float freq, 
       float offset) {
     _th = th;
     _v1 = v1;
@@ -56,7 +56,7 @@ public class GeoRZA {
    * zero-offset source-receiver geometry.
    * @return array[2] of t01 and t02 (top and bottom times resepctively)
    */
-  private float[] goTimeCalcZeroOff() {
+  public float[] goTimeCalcZeroOff() {
     float[] t0 = new float[2];
     t0[0] = (2.0f*_zt)/_v1;
     t0[1] = t0[0] + 2.0f*_th/_v2;
@@ -69,7 +69,7 @@ public class GeoRZA {
    * @param n number of offset values
    * @return array[2][n] of t01 and t02 (top and bottom times resepctively)
    */
-  private float[][] goTimeCalcZeroOff(int n) {
+  public float[][] goTimeCalcZeroOff(int n) {
     float[][] t0 = new float[n][2];
     for (int i=0; i<n; ++i) {
       t0[i] = goTimeCalcZeroOff();
@@ -85,7 +85,7 @@ public class GeoRZA {
    * @param offset offset value between source and reciever
    * @return array[2] of tx1 and tx2 (top and bottom times resepctively)
    */
-  private float[] goTimeCalcNonZeroOff(float[] t0, float[] vrms, 
+  public float[] goTimeCalcNonZeroOff(float[] t0, float[] vrms, 
       float offset) {
     float[] tx = new float[2];
     tx[0] = sqrt(t0[0]*t0[0] + (offset/vrms[0])*(offset/vrms[0]));
@@ -101,7 +101,7 @@ public class GeoRZA {
    * @param offset offset value between source and reciever
    * @return array[2][#off] of tx1 and tx2 (top and bottom times resepctively)
    */
-  private float[][] goTimeCalcNonZeroOff(float[][] t0, float[][] vrms, 
+  public float[][] goTimeCalcNonZeroOff(float[][] t0, float[][] vrms, 
       float[] offset) {
     int n = offset.length;
     float[][] tx = new float[n][2];
@@ -116,7 +116,7 @@ public class GeoRZA {
    * @param t the times for the top and bottom of layer
    * @return array[2] of RMS velocities
    */
-  private float[] goVrmsCalc(float[] t) {
+  public float[] goVrmsCalc(float[] t) {
     float[] vrms = new float[2];
     vrms[0] = _v1;
     vrms[1] = sqrt((_v1*_v1*t[0] + _v2*_v2*t[1])/(t[0] + t[1]));
@@ -128,7 +128,7 @@ public class GeoRZA {
    * @param t the times for the top and bottom of layer
    * @return array[2][#off] of RMS velocities
    */
-  private float[][] goVrmsCalc(float[][] t) {
+  public float[][] goVrmsCalc(float[][] t) {
     int n = t.length;
     float[][] vrms = new float[n][2];
     for (int i=0; i<n; ++i) {
@@ -144,7 +144,7 @@ public class GeoRZA {
    * @param offset offset value between source and reciever
    * @return array[2] delta RMS velocities
    */
-  private float[] goDelVrms(float[] t, float[] vrms, float offset) {
+  public float[] goDelVrms(float[] t, float[] vrms, float offset) {
     float[] delvrms = new float[2];
     delvrms[0] = _A[0]*(t[0]*pow(vrms[0],3))/(_freq*offset*offset);
     delvrms[1] = _A[1]*(t[1]*pow(vrms[1],3))/(_freq*offset*offset);
@@ -158,7 +158,7 @@ public class GeoRZA {
    * @param offset offset value between source and reciever
    * @return array[2][#off] delta RMS velocities
    */
-  private float[][] goDelVrms(float[][] t, float[][] vrms, 
+  public float[][] goDelVrms(float[][] t, float[][] vrms, 
       float[] offset) {
     int n = offset.length;
     float[][] delvrms = new float[n][2];
@@ -176,7 +176,7 @@ public class GeoRZA {
    * @param delvrms delta RMS velocities
    * @return array[2] the uncertainties in top depth values (plus/minus)
    */
-  private float[] goDepthUncertaintyT(float[] t, float[] vrms, 
+  public float[] goDepthUncertaintyT(float[] t, float[] vrms, 
       float offset, float[] delvrms) {
     float[] zt = new float[2];
     float ztp, ztm;
@@ -197,7 +197,7 @@ public class GeoRZA {
    * @param delvrms delta RMS velocities
    * @return array[2] the uncertainties in top depth values (plus/minus)
    */
-  private float[][] goDepthUncertaintyT(float[][] t, float[][] vrms, 
+  public float[][] goDepthUncertaintyT(float[][] t, float[][] vrms, 
       float offset[], float[][] delvrms) {
     int n = offset.length;
     float[][] zt = new float[n][2];
@@ -215,7 +215,7 @@ public class GeoRZA {
    * @param delvrms delta RMS velocities
    * @return array[2] the uncertainties in bottom depth values (plus/minus)
    */
-  private float[] goDepthUncertaintyB(float[] t, float[] vrms, 
+  public float[] goDepthUncertaintyB(float[] t, float[] vrms, 
       float offset, float[] delvrms) {
     float[] zb = new float[2];
     float zbp, zbm;
@@ -236,7 +236,7 @@ public class GeoRZA {
    * @param delvrms delta RMS velocities
    * @return array[2] the uncertainties in bottom depth values (plus/minus)
    */
-  private float[][] goDepthUncertaintyB(float[][] t, float[][] vrms, 
+  public float[][] goDepthUncertaintyB(float[][] t, float[][] vrms, 
       float[] offset, float[][] delvrms) {
     int n = offset.length;
     float[][] zb = new float[n][2];
