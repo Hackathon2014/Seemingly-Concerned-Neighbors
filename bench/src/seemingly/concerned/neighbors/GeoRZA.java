@@ -17,7 +17,7 @@ import static edu.mines.jtk.util.ArrayMath.*;
  * constraints for a gravity inversion that inverts for the depth of top and
  * bottom of a layer in the subsurface. Throughout this software we will be
  * using units of meters (m), seconds (s), and meters/second (m/s).
- * @version 26.10.2014 11:53am
+ * @version 26.10.2014 12:14pm
  */
 
 public class GeoRZA {
@@ -176,17 +176,14 @@ public class GeoRZA {
    * @param delvrms delta RMS velocities
    * @return array[2] the uncertainties in top depth values (plus/minus)
    */
-  public float[] goDepthUncertaintyT(float[] t, float[] vrms, 
+  public float goDepthUncertaintyT(float[] t, float[] vrms, 
       float offset, float[] delvrms) {
-    float[] zt = new float[2];
     float ztp, ztm;
     float r = (t[0]*vrms[0])/2.0f;
     float theta = asin(offset/(2.0f*r));
     ztp = (cos(theta)*t[0]/2.0f)*(vrms[0]+delvrms[0]);
     ztm = (cos(theta)*t[0]/2.0f)*(vrms[0]-delvrms[0]);
-    zt[0] = ztp;
-    zt[1] = ztm;
-    return zt;
+    return ztp;
   }
 
   /**
@@ -197,10 +194,10 @@ public class GeoRZA {
    * @param delvrms delta RMS velocities
    * @return array[2] the uncertainties in top depth values (plus/minus)
    */
-  public float[][] goDepthUncertaintyT(float[][] t, float[][] vrms, 
+  public float[] goDepthUncertaintyT(float[][] t, float[][] vrms, 
       float offset[], float[][] delvrms) {
     int n = offset.length;
-    float[][] zt = new float[n][2];
+    float[] zt = new float[n];
     for (int i=0; i<n; ++i) {
       zt[i] = goDepthUncertaintyT(t[i],vrms[i],offset[i],delvrms[i]);
     }
@@ -215,17 +212,14 @@ public class GeoRZA {
    * @param delvrms delta RMS velocities
    * @return array[2] the uncertainties in bottom depth values (plus/minus)
    */
-  public float[] goDepthUncertaintyB(float[] t, float[] vrms, 
+  public float goDepthUncertaintyB(float[] t, float[] vrms, 
       float offset, float[] delvrms) {
-    float[] zb = new float[2];
     float zbp, zbm;
     float r = (t[1]*vrms[1])/2.0f;
     float theta = asin(offset/(2.0f*r));
     zbp = (cos(theta)*t[1]/2.0f)*(vrms[1]+delvrms[1]);
     zbm = (cos(theta)*t[1]/2.0f)*(vrms[1]-delvrms[1]);
-    zb[0] = zbp;
-    zb[1] = zbm;
-    return zb;
+    return zbp;
   }
 
   /**
@@ -236,10 +230,10 @@ public class GeoRZA {
    * @param delvrms delta RMS velocities
    * @return array[2] the uncertainties in bottom depth values (plus/minus)
    */
-  public float[][] goDepthUncertaintyB(float[][] t, float[][] vrms, 
+  public float[] goDepthUncertaintyB(float[][] t, float[][] vrms, 
       float[] offset, float[][] delvrms) {
     int n = offset.length;
-    float[][] zb = new float[n][2];
+    float[] zb = new float[n];
     for (int i=0; i<n; ++i) {
       zb[i] = goDepthUncertaintyB(t[i],vrms[i],offset[i],delvrms[i]);
     }
@@ -297,15 +291,13 @@ public class GeoRZA {
     float[] tx = new float[2];           //(s)
     float[] vrms = new float[2];         //(m/s)
     float[] delvrms = new float[2];      //(m/s)
-    float[] zut = new float[2];          //(m)
-    float[] zub = new float[2];          //(m)
 
     float[][] t0a = new float[noff][2];     //(s)
     float[][] txa = new float[noff][2];     //(s)
     float[][] vrmsa = new float[noff][2];   //(m/s)
     float[][] delvrmsa = new float[noff][2];//(m/s)
-    float[][] zuta = new float[noff][2];    //(m)
-    float[][] zuba = new float[noff][2];    //(m)
+    float[] zuta = new float[noff];    //(m)
+    float[] zuba = new float[noff];    //(m)
 
 
     // Calculations using a single offset value
@@ -313,8 +305,8 @@ public class GeoRZA {
     vrms = grza.goVrmsCalc(t0);
     tx = grza.goTimeCalcNonZeroOff(t0,vrms,offset);
     delvrms = grza.goDelVrms(tx,vrms,offset);
-    zut = grza.goDepthUncertaintyT(tx,vrms,offset,delvrms);
-    zub = grza.goDepthUncertaintyB(tx,vrms,offset,delvrms);
+    float zut = grza.goDepthUncertaintyT(tx,vrms,offset,delvrms);
+    float zub = grza.goDepthUncertaintyB(tx,vrms,offset,delvrms);
     // Calculations using an array of offset values
     t0a = grza.goTimeCalcZeroOff(noff);
     vrmsa = grza.goVrmsCalc(t0a);
