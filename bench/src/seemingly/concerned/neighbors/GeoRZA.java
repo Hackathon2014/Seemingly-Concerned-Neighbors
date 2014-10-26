@@ -18,7 +18,7 @@ import static edu.mines.jtk.util.ArrayMath.*;
  * constraints for a gravity inversion that inverts for the depth of top and
  * bottom of a layer in the subsurface. Throughout this software we will be
  * using units of meters (m), seconds (s), and meters/second (m/s).
- * @version 25.10.2014 4:57pm
+ * @version 26.10.2014 10:32am
  */
 
 public class GeoRZA {
@@ -259,18 +259,20 @@ public class GeoRZA {
 
   /************************MAIN METHOD**********************************/
   public static void main(String[] args) {
-    int noff = 300;                //# of offsets/ offset value in (m)
-    float offset = 300.0f;         //(m)
     float th = 70.0f;              //(m)
     float v1 = 2000.0f;            //(m/s) 
     float v2 = 2200.0f;            //(m/s) 
     float zt = 500.0f;             //(m)
+    float offset = 300.0f;         //(m)
     float freq = 25.0f;            //(Hz)
+
+    int noff = 300;                //# of offsets/ offset value in (m)
     float[] offa = new float[noff];//(m)
     float[] za = new float[noff];  //(m)
     for (int i=0; i<noff; ++i) {
       offa[i] = i;
     }
+
     GeoRZA grza = new GeoRZA(th,v1,v2,zt,freq,offset);
 
     float[] t0 = new float[2];           //(s)
@@ -306,7 +308,8 @@ public class GeoRZA {
     float z = grza.goDepthCalc(tx,vrms,offset);
     za = grza.goDepthCalc(txa,vrmsa,offa);
     for (int i=0; i<noff; ++i){
-      System.out.println(za[i]);
+      //System.out.println(za[i]);
+      System.out.println(grza.th);
     }
     System.out.println(z);
     grza.goPrint(t0,vrms);
