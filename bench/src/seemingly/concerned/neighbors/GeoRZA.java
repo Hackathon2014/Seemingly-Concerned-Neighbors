@@ -4,7 +4,6 @@ import edu.mines.jtk.io.*;
 
 import java.io.*;
 import java.nio.*;
-import javax.swing.*;
 
 import static edu.mines.jtk.util.ArrayMath.*;
 
@@ -34,6 +33,25 @@ public class GeoRZA {
   }
 
   /**
+   * Set method to change the acquisition parameters for your GeoRZA object.
+   * @param th thickness of the bed
+   * @param v1 stacking velocity above layer
+   * @param v2 velocity of the layer
+   * @param zt depth to the top of the layer
+   * @param freq peak frequency of the source
+   * @param offset offset value between source and reciever
+   */
+  private void setValues(float th, float v1, float v2, float zt, float freq, 
+      float offset) {
+    _th = th;
+    _v1 = v1;
+    _v2 = v2;
+    _zt = zt;
+    _freq = freq;
+    _offset = offset;
+  }
+
+  /**
    * Calculates the times to the top and bottom of a subsurface layer for
    * zero-offset source-receiver geometry.
    * @return array[2] of t01 and t02 (top and bottom times resepctively)
@@ -41,7 +59,7 @@ public class GeoRZA {
   private float[] goTimeCalcZeroOff() {
     float[] t0 = new float[2];
     t0[0] = (2.0f*_zt)/_v1;
-    t0[1] = t0[0] + _th/_v2;
+    t0[1] = t0[0] + 2.0f*_th/_v2;
     return t0;
   }
 
