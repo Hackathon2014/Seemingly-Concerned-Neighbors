@@ -43,9 +43,9 @@ r2=(t2x*vr2)/2;
 theta1=asind(x/(2*r1));
 theta2=asind(x/(2*r1));
 
-ztu=((t1x*cos(theta1))/2)*(vrms2+dvrms1);
-ztl=((t1x*cos(theta1))/2)*(vrms2-dvrms1);
+ztu=((t1x*cosd(theta1))/2)*(vrms1+dvrms1);
+ztl=((t1x*cosd(theta1))/2)*(vrms1-dvrms1);
 
-zbu=((t2x*cos(theta2))/2)*(vrms2+dvrms2);
-zbl=((t2x*cos(theta2))/2)*(vrms2-dvrms2);
+zbu=((t2x*cosd(theta2))/2)*(vrms2+dvrms2);
+zbl=((t2x*cosd(theta2))/2)*(vrms2-dvrms2);
 
