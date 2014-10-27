@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/lib/seemingly.nearest.neighbors"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin" >
+    
+
+ <seemingly.concerned.neighbors.hackathon14.drawImage.SeismicImage
+     android:id="@+id/SeismicImage"
+     android:layout_width="match_parent"
+     android:layout_height="wrap_content"
+     android:layout_above="@+id/textView_Depth"
+     android:padding="5dp"
+     custom:layerDepth="500"
+     custom:layerThickness="50"
+     custom:layerPeakFreq="25"
+     custom:layerMaxOffset="500"
+     custom:labelPosition="left"
+     custom:showText="true" />
+
+<!-- TextView_MaxOffset sets the base position for all other views. -->
+  	<TextView
+	     android:id="@+id/textView_MaxOffset"
+	     android:layout_width="wrap_content"
+	     android:layout_height="wrap_content"
+	     android:layout_alignParentLeft="true"
+	     android:layout_alignParentBottom="true"
+	     android:paddingTop="15dp"
+	     android:paddingRight="5dp"
+	     android:text="@string/seekBar_MaxOffset" />
+  	
+  	 <TextView
+	     android:id="@+id/textView_PeakFreq"
+	     android:layout_width="wrap_content"
+	     android:layout_height="wrap_content"
+	     android:layout_alignParentLeft="true"
+	     android:layout_above="@id/textView_MaxOffset"
+	     android:paddingTop="15dp"
+	     android:text="@string/seekBar_PeakFreq" />
+  	 
+ 	<TextView
+	     android:id="@+id/textView_Thickness"
+	     android:layout_width="wrap_content"
+	     android:layout_height="wrap_content"
+	     android:layout_alignParentLeft="true"
+	     android:layout_above="@id/textView_PeakFreq"
+	     android:paddingTop="15dp"
+	     android:text="@string/seekBar_Thickness" />
+ 	
+ 	<TextView
+	     android:id="@+id/textView_Depth"
+	     android:layout_width="wrap_content"
+	     android:layout_height="wrap_content"
+	     android:layout_alignParentLeft="true"
+	     android:layout_above="@id/textView_Thickness"
+	     android:paddingTop="15dp"
+	     android:text="@string/seekBar_Depth" />
+
+<!-- All seekBars alignedLeft to MaxOffset seekBar -->
+ 	<SeekBar
+ 	    android:id="@+id/seekBar_MaxOffset"
+ 	    android:layout_width="match_parent"
+ 	    android:layout_height="wrap_content"
+ 	    android:layout_alignBottom="@id/textView_MaxOffset"
+ 	    android:layout_toRightOf="@id/textView_MaxOffset" 
+        android:paddingRight="5dp"/>
+ 	
+ 	<SeekBar
+ 	    android:id="@+id/seekBar_PeakFreq"
+ 	    android:layout_width="match_parent"
+ 	    android:layout_height="wrap_content"
+ 	    android:layout_alignBottom="@id/textView_PeakFreq"
+ 	    android:layout_toRightOf="@id/textView_PeakFreq"
+ 	    android:layout_above="@id/seekBar_MaxOffset" 
+ 	    android:layout_alignLeft="@id/seekBar_MaxOffset"
+        android:paddingRight="5dp"/>
+ 	
+ 	<SeekBar
+ 	    android:id="@+id/seekBar_Thickness"
+ 	    android:layout_width="match_parent"
+ 	    android:layout_height="wrap_content"
+ 	    android:layout_alignBottom="@id/textView_Thickness"
+ 	    android:layout_toRightOf="@id/textView_Thickness"
+ 	    android:layout_above="@id/seekBar_PeakFreq" 
+ 	    android:layout_alignLeft="@id/seekBar_MaxOffset"
+        android:paddingRight="5dp"/>
+ 	
+ 	<SeekBar
+ 	    android:id="@+id/seekBar_Depth"
+ 	    android:layout_width="match_parent"
+ 	    android:layout_height="wrap_content"
+ 	    android:layout_alignBottom="@id/textView_Depth"
+ 	    android:layout_toRightOf="@id/textView_Depth"
+ 	    android:layout_above="@id/seekBar_Thickness" 
+ 	    android:layout_alignLeft="@id/seekBar_MaxOffset"
+        android:paddingRight="5dp"/>
+     
+</RelativeLayout>

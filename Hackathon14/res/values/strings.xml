@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">GeoRZA</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="depth_message">200.0</string>
+    <string name="seekBar_Depth">Depth</string>
+    <string name="seekBar_Thickness">Thickness</string>
+    <string name="seekBar_PeakFreq">Peak Freq</string>
+    <string name="seekBar_MaxOffset">Max Offset</string>
+
+</resources>
