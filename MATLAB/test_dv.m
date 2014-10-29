@@ -11,17 +11,17 @@ x=8000; %offset
 dv=A*v*v*v*t/f/x/x; %stacking velocity error
 
 %% More robust testing
-perc=0.07;
+perc=0.1;
 %Bounds on parameters
 vamin=1500;        %m/s
-vamax=2500;        %m/s
-ztamin=10;         %m
+vamax=2500;        %m/s 2000 and 2200 used in app
+ztamin=1;          %m
 ztamax=10000;      %m
 Tamin=1;           %m
 Tamax=1000;        %m
 famin=8;           %Hz
 famax=80;          %Hz
-xamax=10000;        %m
+xamax=10000;       %m (max offset = 700:10000)
 xamin=perc*xamax;  %m
 v1a=vamin:vamax;   %m/s
 v2a=vamin:vamax;   %m/s
@@ -46,11 +46,11 @@ T=Ta(rTi);
 f=fa(rfi);
 x=xa(rxi);
 
-v1=3000; % velocity upper layer
-v2=2200; % velocity lower layer
-zt=2200;
-T=1100;
-f=25; %characteristic frequency
+v1=2000; % velocity upper layer
+v2=2000; % velocity lower layer
+zt=1000;
+T=100;
+f=80; %characteristic frequency
 % x=8000; %offset
 nsim=100;
 while j<nsim
@@ -71,12 +71,11 @@ while j<nsim
 
     %Compute depth bounds
     t01=2*zt/v1;
-    t02=t01+T/v2;
+    t02=t01+2*T/v2;
     vr1=v1;
     vr2=sqrt((v1*v1*t01+v2*v2*t02)/(t01+t02));
     t1x=sqrt(t01*t01+(x*x/vr1/vr1));
     t2x=sqrt(t02*t02+(x*x/vr2/vr2));
-    A1=4; A2=4;
 %     dv1=A1*t1x*vrms1*vrms1*vrms1/f/x/x;
 %     dv2=A2*t2x*vrms2*vrms2*vrms2/f/x/x;
 %     r1=t1x*vrms1/2;
@@ -104,12 +103,17 @@ while j<nsim
     %display bounds for this user input
 %     figure(1); hold on; errorbar(x,ztc,ztl,ztu,'g'); errorbar(x,zbc,zbl,zbu,'r');
     figure(1); hold on; 
-    plot(x,ztc,'ks')
-    plot(x,zbc,'ko')
-    plot([x,x],[ztu,ztl],'-gx')
-    plot([x,x],[zbu,zbl],'-bx')
+%     plot(x,ztc,'ks')
+%     plot(x,zbc,'ko')
+    plot([x,x],[ztu,ztl],'-gs','markerfacecolor','g','linewidth',0.9)
+    plot([x,x],[zbu,zbl],'-bs','markerfacecolor','b','linewidth',0.9)
     j=j+1;
 end
-figure(1); plot(xa,zt,'g'); hold on; plot(xa,zt+T,'r'); hold off
+figure(1); 
+lwl=1.1;
+plot(xa,zt  ,'k','linewidth',lwl); hold on;
+plot(xa,zt+T,'k','linewidth',lwl); hold off
 set(gca,'Ydir','reverse')
+xlabel('Offset [m]'); ylabel('Depth [m]');
+title('Depth estimate error vs. offset');
 
