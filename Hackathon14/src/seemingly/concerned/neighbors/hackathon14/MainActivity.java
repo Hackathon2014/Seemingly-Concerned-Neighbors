@@ -25,7 +25,7 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        Resources res = getResources();
+        //Resources res = getResources();
         
         setContentView(R.layout.activity_main);
         

@@ -325,27 +325,11 @@ public class SeismicImage extends View {
         // Draw the layer
         canvas.drawRect(mLayerBounds, mLayerPaint);
         
-        // Update the calculation object with new inputs
-        rza.setValues(this.thickness, this.v1, this.v2, this.depth, this.peakFreq, this.maxOffset);
-        float[] t0 = rza.goTimeCalcZeroOff();
-        float[] vrms = rza.goVrmsCalc(t0);
-        float[] tx = new float[2];
-        float[] delvrms = new float[2];
-        float offset = 0f;
+        // Update the calculation object and the arrayList of error bars
+        calcSetErrorBars(ww);
         
-        // Set updated errorBars
+     // Draw updated errorBars
         for (int i=0; i<numErrorBar; ++i) {
-        	
-        	offset = upperErrorBar.get(i).getOffset();
-        	tx = rza.goTimeCalcNonZeroOff(t0, vrms, offset);
-        	delvrms = rza.goDelVrms(tx, vrms, offset);
-        	upperErrorBar.get(i).setStdDev(rza.goDepthUncertaintyTh(tx,vrms,offset,delvrms)); // insert function for Std Dev
-        	lowerErrorBar.get(i).setStdDev(rza.goDepthUncertaintyBh(tx,vrms,offset,delvrms)); // insert function for Std Dev
-        	upperErrorBar.get(i).setErrorBar(ww,numErrorBar,i,(int)rza.goDepthUncertaintyTc(tx,vrms,offset,delvrms));
-        	lowerErrorBar.get(i).setErrorBar(ww,numErrorBar,i,(int)rza.goDepthUncertaintyBc(tx,vrms,offset,delvrms));
-        	//upperErrorBar.get(i).setStdDev(10); // insert function for Std Dev
-        	//lowerErrorBar.get(i).setStdDev(20); // insert function for Std Dev
-
         	canvas.drawLines(upperErrorBar.get(i).getLines(), mUpperErrorBarPaint);
         	canvas.drawLines(lowerErrorBar.get(i).getLines(), mLowerErrorBarPaint);
         }
@@ -378,7 +362,12 @@ public class SeismicImage extends View {
         mLayerBounds = new Rect(0,0,ww-2,thickness_Pixels);
         mLayerBounds.offsetTo(getPaddingLeft()+1, getPaddingTop()+depth_Pixels);
         
-        // Update the calculation object with new inputs
+        // Update the calculation object and the arrayList of error bars
+        calcSetErrorBars(ww);
+    }
+
+	private void calcSetErrorBars(int ww) {
+		// Set the calculation object with updated input parameters
         rza.setValues(this.thickness, this.v1, this.v2, this.depth, this.peakFreq, this.maxOffset);
         float[] t0 = rza.goTimeCalcZeroOff();
         float[] vrms = rza.goVrmsCalc(t0);
@@ -386,11 +375,7 @@ public class SeismicImage extends View {
         float[] delvrms = new float[2];
         float offset = 0f;
         
-        // Set updated errorBars
-        int upperSurface = getPaddingTop()+depth_Pixels;
-        int lowerSurface = getPaddingTop()+depth_Pixels+thickness_Pixels;
         for (int i=0; i<numErrorBar; ++i) {
-        	
         	offset = upperErrorBar.get(i).getOffset();
         	tx = rza.goTimeCalcNonZeroOff(t0, vrms, offset);
         	delvrms = rza.goDelVrms(tx, vrms, offset);
@@ -398,18 +383,26 @@ public class SeismicImage extends View {
         	lowerErrorBar.get(i).setStdDev(rza.goDepthUncertaintyBh(tx,vrms,offset,delvrms)); // insert function for Std Dev
         	upperErrorBar.get(i).setErrorBar(ww,numErrorBar,i,(int)rza.goDepthUncertaintyTc(tx,vrms,offset,delvrms));
         	lowerErrorBar.get(i).setErrorBar(ww,numErrorBar,i,(int)rza.goDepthUncertaintyBc(tx,vrms,offset,delvrms));
-        	//upperErrorBar.get(i).setStdDev(10); // insert function for Std Dev
-        	//lowerErrorBar.get(i).setStdDev(20); // insert function for Std Dev
         }
-    }
-
+	}
+    
+    /**
+     * @author Brent Putman
+     *
+     * ErrorBar is a class to store the 12 data needed to draw an error bar.
+     * Each error bar has three lines, and each line has 2 x,y locations. 
+     * Thus, each error bar has 12 data.
+     * 
+     * All parts of the error bar are in terms of pixels to be drawn on the screen.
+     * Inputs in meters are converted into pixels using a conversion from depth (meters) to screen height (pixels).
+     */
     private class ErrorBar {
 		private float[] mErrorBarLines; 
-		private float stdDev;
+		private float stdDev;  // standard deviation in pixels
 		private float offset;
 		
 		public ErrorBar() {
-			this.mErrorBarLines = new float[3*4]; // 3 lines
+			this.mErrorBarLines = new float[3*4]; // 3 lines, 4 data per line
 		}
 		
 		public float[] getLines() {
@@ -418,14 +411,13 @@ public class SeismicImage extends View {
 
 		/*
 		 * stdDev - meters
-		 * convert to Pixels and store
+		 * convert from meters to pixels and store
 		 */
 		public void setStdDev(float stdDev) {
 			this.stdDev = getHeight()*((stdDev-depth_min)/depth_max);
 		}
 		
 		public float getStdDev() {
-			
 			return this.stdDev;
 		}
 		
@@ -433,32 +425,40 @@ public class SeismicImage extends View {
 			return this.offset;
 		}
     	
-    	private void setErrorBar(int ww, int n, int i, float surface1) {
-    		int surface = (int)(getHeight()*((surface1-depth_min)/depth_max)+getPaddingTop());
-    		int dx = ww/n; // x separation between errorBars
+		/**
+		 * @param ww, width of the screen, in pixels
+		 * @param n, number of error bars
+		 * @param i, error bar index
+		 * @param depth_meter, depth of the error bar mean, in meters
+		 */
+    	private void setErrorBar(int ww, int numErrorBar, int i, float depth_meter) {
+    		// Convert from meters to pixels
+    		int depth_pixel = (int)(getHeight()*((depth_meter-depth_min)/depth_max)+getPaddingTop());
+    		int dx = ww/numErrorBar; // x separation between errorBars
     		int xStart = (int) (0.5*dx);
     		int errorWidth = (int) (0.25*dx);
+    		if (errorWidth < 1) errorWidth = 1;
     		int xLoc = xStart + dx*i;
     		
-    		float d_Offset = maxOffset/n;
+    		float d_Offset = maxOffset/numErrorBar;
     		float offset_Start = d_Offset/2f;
     		float offset = offset_Start + d_Offset*i;
     		this.offset = offset;
-		    //Surface upper horizontal line
+		    // upper horizontal line
 		    mErrorBarLines[0] = xLoc;
-		    mErrorBarLines[1] = surface-stdDev/2;
+		    mErrorBarLines[1] = depth_pixel-stdDev/2;
 		    mErrorBarLines[2] = xLoc + errorWidth;
-		    mErrorBarLines[3] = surface-stdDev/2;
-		    //Surface lower horizontal line
+		    mErrorBarLines[3] = depth_pixel-stdDev/2;
+		    // lower horizontal line
 		    mErrorBarLines[4] = xLoc;
-	        mErrorBarLines[5] = surface+stdDev/2;
+	        mErrorBarLines[5] = depth_pixel+stdDev/2;
 	        mErrorBarLines[6] = xLoc + errorWidth;
-	        mErrorBarLines[7] = surface+stdDev/2;
-	        //Surface vertical line
+	        mErrorBarLines[7] = depth_pixel+stdDev/2;
+	        // vertical line
 	        mErrorBarLines[8] = xLoc + errorWidth/2;
-	        mErrorBarLines[9] = surface+stdDev/2;
+	        mErrorBarLines[9] = depth_pixel+stdDev/2;
 	        mErrorBarLines[10] = xLoc + errorWidth/2;
-	        mErrorBarLines[11] = surface-stdDev/2;
+	        mErrorBarLines[11] = depth_pixel-stdDev/2;
     	}
     }
     
@@ -467,28 +467,28 @@ public class SeismicImage extends View {
      * called from both constructors.
      */
     private void init() { 
-    	// Set the outer rectangle
+    	// Set the outer rectangle's color and line width
     	mRectPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mRectPaint.setStyle(Style.STROKE);
         mRectPaint.setStrokeWidth(1);
     	mRectPaint.setColor(Color.BLACK);
     	
-    	// Set the layer 
+    	// Set the seismic layer's color
     	mLayerPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     	mLayerPaint.setStyle(Style.FILL);
     	mLayerPaint.setColor(Color.CYAN);
     	
-    	// Set error bar
+    	// Create error bars
     	upperErrorBar = new ArrayList<ErrorBar>();
     	lowerErrorBar = new ArrayList<ErrorBar>();
     	
-
     	numErrorBar = 10;
     	for (int i=0; i<numErrorBar; ++i) {
     		upperErrorBar.add(new ErrorBar());
     		lowerErrorBar.add(new ErrorBar());
     	}
     	
+    	// Set colors and line width of error bars
     	mUpperErrorBarPaint = new Paint();
     	mUpperErrorBarPaint.setStrokeWidth(2);
     	mUpperErrorBarPaint.setColor(Color.RED);
@@ -496,11 +496,8 @@ public class SeismicImage extends View {
     	mLowerErrorBarPaint = new Paint();
     	mLowerErrorBarPaint.setStrokeWidth(2);
     	mLowerErrorBarPaint.setColor(Color.DKGRAY);
-    	
-        //mErrorBarLines = new float[4*6]; // 6 lines. Each line is x0,y0,x1,y1
         
         // Create GeoRZA computing object
-        
         rza = new GeoRZA(thickness, v1, v2, depth, peakFreq, maxOffset);
     }
 	

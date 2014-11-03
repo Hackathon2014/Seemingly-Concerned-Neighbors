@@ -22,7 +22,7 @@
      custom:labelPosition="left"
      custom:showText="true" />
 
-<!-- TextView_MaxOffset sets the base position for all other views. -->
+<!-- textView_MaxOffset sets the base position for all other views. -->
   	<TextView
 	     android:id="@+id/textView_MaxOffset"
 	     android:layout_width="wrap_content"

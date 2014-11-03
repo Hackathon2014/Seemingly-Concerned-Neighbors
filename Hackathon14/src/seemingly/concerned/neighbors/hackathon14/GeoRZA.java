@@ -1,8 +1,5 @@
 package seemingly.concerned.neighbors.hackathon14;
 
-import java.io.*;
-import java.nio.*;
-
 
 /**
  * @author Elias Arias, Colorado School of Mines CWP 
@@ -241,7 +238,7 @@ public class GeoRZA {
    * Calculates the uncertainty in the depth of the bottom of layer.
    * @param t times for the bottom of layer
    * @param vrms RMS velocities 
-   * @param offset offset value between source and reciever
+   * @param offset offset value between source and receiver
    * @param delvrms delta RMS velocities
    * @return array[2] the uncertainties in bottom depth values (plus/minus)
    */
