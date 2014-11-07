@@ -379,7 +379,7 @@ public class SeismicImage extends View {
     		// Convert from meters to pixels
     		int depth_pixel = (int)(hh*((depth_meter-depth_min)/depth_max) + getPaddingBottom());
     		int dx = ww/numErrorBar; // x separation between errorBars
-    		int xStart = (int) (0.5*dx);
+    		int xStart = (int) (0.5*dx) + getPaddingLeft();
     		int errorWidth = (int) (0.25*dx);
     		if (errorWidth < 1) errorWidth = 1;
     		int xLoc = xStart + dx*ii;
@@ -390,19 +390,19 @@ public class SeismicImage extends View {
     		float offset = offset_Start + d_Offset*ii;
     		this._offset = offset;
 		    // Set upper horizontal line
-		    _mErrorBarLines[0] = xLoc;
+		    _mErrorBarLines[0] = xLoc - errorWidth/2;
 		    _mErrorBarLines[1] = depth_pixel-_stdDev;
-		    _mErrorBarLines[2] = xLoc + errorWidth;
+		    _mErrorBarLines[2] = xLoc + errorWidth/2;
 		    _mErrorBarLines[3] = depth_pixel-_stdDev;
 		    // Set lower horizontal line
-		    _mErrorBarLines[4] = xLoc;
+		    _mErrorBarLines[4] = xLoc - errorWidth/2;
 	        _mErrorBarLines[5] = depth_pixel+_stdDev;
-	        _mErrorBarLines[6] = xLoc + errorWidth;
+	        _mErrorBarLines[6] = xLoc + errorWidth/2;
 	        _mErrorBarLines[7] = depth_pixel+_stdDev;
 	        // Set vertical line
-	        _mErrorBarLines[8] = xLoc + errorWidth/2;
+	        _mErrorBarLines[8] = xLoc;
 	        _mErrorBarLines[9] = depth_pixel+_stdDev;
-	        _mErrorBarLines[10] = xLoc + errorWidth/2;
+	        _mErrorBarLines[10] = xLoc;
 	        _mErrorBarLines[11] = depth_pixel-_stdDev;
     	}
     }
