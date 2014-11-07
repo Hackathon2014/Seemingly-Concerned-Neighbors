@@ -149,25 +149,6 @@ public class SeismicImage extends View {
         return this.depth;
     }
     
-//    /**
-//     * Update the layer depth based on user inputs
-//     * @param float - the new layer depth, in meters
-//     * @return float - the depth achieved, in meters
-//     */
-//    public float setDepth(float depth) {
-//        this.depth = depth;
-//        int height = getHeight() - getPaddingTop() - getPaddingBottom();
-//        this.depth_Pixels = (int) (height*(depth-depth_min)/depth_max);
-//        
-//        if (depth_Pixels+thickness_Pixels > height) {
-//        	depth_Pixels = height - thickness_Pixels;
-//        	this.depth = ((depth_Pixels*(depth_max-depth_min))/height) + depth_min;
-//        }
-//        invalidate();
-//
-//        return this.depth;
-//    }
-    
 	/**
      * @return Depth of the layer
      */
