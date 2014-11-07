@@ -48,23 +48,7 @@ public class SeismicImage extends View {
 	ArrayList<ErrorBar> lowerErrorBar;
 	private float v1;
 	private float v2;
-	
-
-	
-	
-    /**
-     * Draw text to the left of the image
-     */
-    public static final int TEXTPOS_LEFT = 0;
-    
-    /**
-     * Interface definition for a callback to be invoked when the current
-     * item changes.
-     */
-    public interface VariableChangeListener {
-        void setOnVariableChange(float depth);
-    }
-    
+	 
 	public SeismicImage(Context context) {
 		super(context);
 		init();
@@ -89,12 +73,11 @@ public class SeismicImage extends View {
 
 	   try {
 	       depth = a.getFloat(R.styleable.SeismicImage_layerDepth,3500);
-	       thickness = a.getFloat(R.styleable.SeismicImage_layerThickness,500);
+	       thickness = a.getFloat(R.styleable.SeismicImage_layerThickness,700);
 	       v1 = a.getFloat(R.styleable.SeismicImage_v1,2000);
 	       v2 = a.getFloat(R.styleable.SeismicImage_v2,2200);
 	       peakFreq = a.getFloat(R.styleable.SeismicImage_layerPeakFreq,65);
-	       maxOffset = a.getFloat(R.styleable.SeismicImage_layerMaxOffset,6000);
-	       
+	       maxOffset = a.getFloat(R.styleable.SeismicImage_layerMaxOffset,6000);    
 	   } finally {
 	       a.recycle();
 	   }
@@ -149,25 +132,41 @@ public class SeismicImage extends View {
 
     /**
      * Update the layer depth based on user inputs
-     * @param float - the new layer depth
-     * @return int - the depth achieved, in meters
+     * @param float - the new layer depth, in meters
+     * @return float - the depth achieved, in meters
      */
-    public int setDepth(float depth) {
+    public float setDepth(float depth) {
         this.depth = depth;
-        int height = getHeight();
+        int height = getHeight() - getPaddingTop() - getPaddingBottom();
         depth_Pixels = (int) (height*(depth-depth_min)/depth_max);
-        depth = getPaddingTop()+depth_Pixels;
         
-        if (depth+thickness_Pixels > height) {
-        	depth_Pixels = (int) (height - thickness_Pixels);
-        	this.depth = ((depth_Pixels*depth_max)/height) + depth_min;
+        if (this.depth + thickness > depth_max) {
+        	depth_Pixels = height - thickness_Pixels;
+        	this.depth = depth_max - thickness;
         }
         invalidate();
-        
-        //rza.setDepth(this.depth);
-        
-        return (int) this.depth;
+
+        return this.depth;
     }
+    
+//    /**
+//     * Update the layer depth based on user inputs
+//     * @param float - the new layer depth, in meters
+//     * @return float - the depth achieved, in meters
+//     */
+//    public float setDepth(float depth) {
+//        this.depth = depth;
+//        int height = getHeight() - getPaddingTop() - getPaddingBottom();
+//        this.depth_Pixels = (int) (height*(depth-depth_min)/depth_max);
+//        
+//        if (depth_Pixels+thickness_Pixels > height) {
+//        	depth_Pixels = height - thickness_Pixels;
+//        	this.depth = ((depth_Pixels*(depth_max-depth_min))/height) + depth_min;
+//        }
+//        invalidate();
+//
+//        return this.depth;
+//    }
     
 	/**
      * @return Depth of the layer
@@ -175,15 +174,12 @@ public class SeismicImage extends View {
     public float getDepthStep() {
         return this.depth_step;
     }
-
-    /**
-     * Update the layer depth based on user inputs
-     *
-     * @param float - the new layer depth
+    
+	/**
+     * @return Maximum depth where the layer can be located
      */
-    public void setDepthStep(float depth_step) {
-        this.depth_step = depth_step;
-        invalidate();
+    public float getDepthMax() {
+        return this.depth_max;
     }
     
 	/**
@@ -193,32 +189,17 @@ public class SeismicImage extends View {
         return this.depth_min;
     }
 
-    /**
-     * Update the Minimum depth where the layer can be located based on user input
-     *
-     * @param float - the new layer minimum layer depth
-     */
-    public void setDepthMin(float depth_min) {
-        this.depth_min = depth_min;
-        invalidate();
+    public void setDepthStep(float depth_step) {
+        this.depth_step = depth_step;
     }
     
-	/**
-     * @return Maximum depth where the layer can be located
-     */
-    public float getDepthMax() {
-        return this.depth_max;
-    }
-
-    /**
-     * Update the Minimum depth where the layer can be located based on user input
-     *
-     * @param float - the new layer minimum layer depth
-     */
     public void setDepthMax(float depth_max) {
         this.depth_max = depth_max;
-        invalidate();
     }
+
+	public void setDepthMin(float depth_min) {
+		this.depth_min = depth_min;
+	}
     
 	/**
      * @return Thickness of the layer
@@ -230,23 +211,20 @@ public class SeismicImage extends View {
     /**
      * Update the layer thickness based on user inputs
      * @param float - the new layer thickness
-     * 
-     * @return int - the thickness achieved, in meters
+     * @return float - the thickness achieved, in meters
      */
-    public int setThickness(float thickness) {
+    public float setThickness(float thickness) {
         this.thickness = thickness;
-        int height = getHeight();
-        int depth = getPaddingTop()+depth_Pixels;
+        int height = getHeight() - getPaddingTop() - getPaddingBottom();
         thickness_Pixels = (int) (height*(thickness-depth_min)/depth_max);
-        if (depth+thickness_Pixels > height) {
-        	thickness_Pixels = height - depth;
-        	this.thickness = (((thickness_Pixels*depth_max)/height) + depth_min);
+        
+        if (depth + this.thickness > depth_max) {
+        	thickness_Pixels = height - depth_Pixels;
+        	this.thickness = depth_max - depth;
         }
         invalidate();
         
-        //rza.setThickness(this.thickness);
-        
-        return (int) this.thickness;
+        return this.thickness;
     }
     
 	/**
@@ -258,12 +236,10 @@ public class SeismicImage extends View {
 
     /**
      * Update the peak frequency based on user inputs
-     *
      * @param float - the new peak frequency
      */
     public void setPeakFreq(float peakFreq) {
         this.peakFreq = peakFreq;
-        //rza.setPeakFreq(this.peakFreq);
         invalidate();
     }
     
@@ -276,31 +252,12 @@ public class SeismicImage extends View {
 
     /**
      * Update the maximum offset based on user inputs
-     *
      * @param float - the new maximum offset
      */
     public void setMaxOffset(float maxOffset) {
         this.maxOffset = maxOffset;
-        //rza.setMaxOffset();
         invalidate();
-    }
-
-//    @Override
-//    protected void onLayout(boolean changed, int l, int t, int r, int b) {
-//        // Do nothing. Do not call the superclass method--that would start a layout pass
-//        // on this view's children. PieChart lays out its children in onSizeChanged().
-//    }
-
-//    /**
-//     * Register a callback to be invoked when the depth variable changes.
-//     *
-//     * @param listener Can be null.
-//     *                 The variable change listener to attach to this view.
-//     */
-//    public void setOnVariableChangeListener(VariableChangeListener listener) {
-//        mVariableChangedListener = listener;
-//    }
-    
+    }    
     
     @Override
     protected void onDraw(Canvas canvas) {
@@ -309,12 +266,11 @@ public class SeismicImage extends View {
         // Account for padding
         int xpad =  (getPaddingLeft() + getPaddingRight());
         int ypad =  (getPaddingTop() + getPaddingBottom());
-
+        
         int ww = getWidth() - xpad;
-        int hh =  getHeight() - ypad;
+        int hh = getHeight() - ypad;
         
         int depth = getPaddingTop()+depth_Pixels;
-        if (depth+thickness_Pixels > getHeight()) depth = getHeight() - thickness_Pixels;
         
         mLayerBounds.set(0,0,ww-2,thickness_Pixels);
         mLayerBounds.offsetTo(getPaddingLeft()+1, depth);        
@@ -326,9 +282,9 @@ public class SeismicImage extends View {
         canvas.drawRect(mLayerBounds, mLayerPaint);
         
         // Update the calculation object and the arrayList of error bars
-        calcSetErrorBars(ww);
+        calcSetErrorBars(ww,hh);
         
-     // Draw updated errorBars
+        // Draw updated errorBars
         for (int i=0; i<numErrorBar; ++i) {
         	canvas.drawLines(upperErrorBar.get(i).getLines(), mUpperErrorBarPaint);
         	canvas.drawLines(lowerErrorBar.get(i).getLines(), mLowerErrorBarPaint);
@@ -341,8 +297,6 @@ public class SeismicImage extends View {
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
 
-        // Set dimensions for text, pie chart, etc
-
         // Account for padding
         int xpad =  (getPaddingLeft() + getPaddingRight());
         int ypad =  (getPaddingTop() + getPaddingBottom());
@@ -350,6 +304,7 @@ public class SeismicImage extends View {
         int ww = w - xpad;
         int hh =  h - ypad;
         
+        // Set dimensions of shapes
         mRectBounds = new Rect(0,0,ww,hh);
         mRectBounds.offsetTo(getPaddingLeft(), getPaddingTop()); 
         
@@ -363,10 +318,16 @@ public class SeismicImage extends View {
         mLayerBounds.offsetTo(getPaddingLeft()+1, getPaddingTop()+depth_Pixels);
         
         // Update the calculation object and the arrayList of error bars
-        calcSetErrorBars(ww);
+        calcSetErrorBars(ww,hh);
     }
 
-	private void calcSetErrorBars(int ww) {
+    /**
+     * Update the size and location of the error bars
+     * 
+     * @param ww width of the drawing view, in pixels
+     * @param hh height of the drawing view, in pixels
+     */
+	private void calcSetErrorBars(int ww, int hh) {
 		// Set the calculation object with updated input parameters
         rza.setValues(this.thickness, this.v1, this.v2, this.depth, this.peakFreq, this.maxOffset);
         float[] t0 = rza.goTimeCalcZeroOff();
@@ -379,10 +340,10 @@ public class SeismicImage extends View {
         	offset = upperErrorBar.get(i).getOffset();
         	tx = rza.goTimeCalcNonZeroOff(t0, vrms, offset);
         	delvrms = rza.goDelVrms(tx, vrms, offset);
-        	upperErrorBar.get(i).setStdDev(rza.goDepthUncertaintyTh(tx,vrms,offset,delvrms)); // insert function for Std Dev
-        	lowerErrorBar.get(i).setStdDev(rza.goDepthUncertaintyBh(tx,vrms,offset,delvrms)); // insert function for Std Dev
-        	upperErrorBar.get(i).setErrorBar(ww,numErrorBar,i,(int)rza.goDepthUncertaintyTc(tx,vrms,offset,delvrms));
-        	lowerErrorBar.get(i).setErrorBar(ww,numErrorBar,i,(int)rza.goDepthUncertaintyBc(tx,vrms,offset,delvrms));
+        	upperErrorBar.get(i).setStdDev(rza.goDepthUncertaintyTh(tx,vrms,offset,delvrms)); // function for Std Dev
+        	lowerErrorBar.get(i).setStdDev(rza.goDepthUncertaintyBh(tx,vrms,offset,delvrms)); // function for Std Dev
+        	upperErrorBar.get(i).setErrorBar(ww,hh,numErrorBar,i,(int)rza.goDepthUncertaintyTc(tx,vrms,offset,delvrms));
+        	lowerErrorBar.get(i).setErrorBar(ww,hh,numErrorBar,i,(int)rza.goDepthUncertaintyBc(tx,vrms,offset,delvrms));
         }
 	}
     
@@ -397,68 +358,71 @@ public class SeismicImage extends View {
      * Inputs in meters are converted into pixels using a conversion from depth (meters) to screen height (pixels).
      */
     private class ErrorBar {
-		private float[] mErrorBarLines; 
-		private float stdDev;  // standard deviation in pixels
-		private float offset;
+		private float[] _mErrorBarLines; 
+		private float _stdDev;  // standard deviation in pixels
+		private float _offset; 
 		
 		public ErrorBar() {
-			this.mErrorBarLines = new float[3*4]; // 3 lines, 4 data per line
+			this._mErrorBarLines = new float[3*4]; // 3 lines, 4 data per line
 		}
 		
 		public float[] getLines() {
-			return this.mErrorBarLines;
+			return this._mErrorBarLines;
 		}
 
-		/*
-		 * stdDev - meters
-		 * convert from meters to pixels and store
+		/**
+		 * @param stdDev - standard deviation in meters
+		 * convert standard deviation from meters to pixels
 		 */
 		public void setStdDev(float stdDev) {
-			this.stdDev = getHeight()*((stdDev-depth_min)/depth_max);
+			this._stdDev = getHeight()*((stdDev-depth_min)/depth_max);
 		}
 		
 		public float getStdDev() {
-			return this.stdDev;
+			return this._stdDev;
 		}
 		
 		public float getOffset() {
-			return this.offset;
+			return this._offset;
 		}
     	
 		/**
+		 * Set location and size of an error bar, in pixels
 		 * @param ww, width of the screen, in pixels
-		 * @param n, number of error bars
-		 * @param i, error bar index
+		 * @param hh, height of the screen, in pixels
+		 * @param numErrorBar, number of error bars
+		 * @param ii, error bar index
 		 * @param depth_meter, depth of the error bar mean, in meters
 		 */
-    	private void setErrorBar(int ww, int numErrorBar, int i, float depth_meter) {
+    	private void setErrorBar(int ww, int hh, int numErrorBar, int ii, float depth_meter) {
     		// Convert from meters to pixels
-    		int depth_pixel = (int)(getHeight()*((depth_meter-depth_min)/depth_max)+getPaddingTop());
+    		int depth_pixel = (int)(hh*((depth_meter-depth_min)/depth_max) + getPaddingBottom());
     		int dx = ww/numErrorBar; // x separation between errorBars
     		int xStart = (int) (0.5*dx);
     		int errorWidth = (int) (0.25*dx);
     		if (errorWidth < 1) errorWidth = 1;
-    		int xLoc = xStart + dx*i;
+    		int xLoc = xStart + dx*ii;
     		
+    		// Calculate the offset (in pixels) of this error bar.
     		float d_Offset = maxOffset/numErrorBar;
     		float offset_Start = d_Offset/2f;
-    		float offset = offset_Start + d_Offset*i;
-    		this.offset = offset;
-		    // upper horizontal line
-		    mErrorBarLines[0] = xLoc;
-		    mErrorBarLines[1] = depth_pixel-stdDev/2;
-		    mErrorBarLines[2] = xLoc + errorWidth;
-		    mErrorBarLines[3] = depth_pixel-stdDev/2;
-		    // lower horizontal line
-		    mErrorBarLines[4] = xLoc;
-	        mErrorBarLines[5] = depth_pixel+stdDev/2;
-	        mErrorBarLines[6] = xLoc + errorWidth;
-	        mErrorBarLines[7] = depth_pixel+stdDev/2;
-	        // vertical line
-	        mErrorBarLines[8] = xLoc + errorWidth/2;
-	        mErrorBarLines[9] = depth_pixel+stdDev/2;
-	        mErrorBarLines[10] = xLoc + errorWidth/2;
-	        mErrorBarLines[11] = depth_pixel-stdDev/2;
+    		float offset = offset_Start + d_Offset*ii;
+    		this._offset = offset;
+		    // Set upper horizontal line
+		    _mErrorBarLines[0] = xLoc;
+		    _mErrorBarLines[1] = depth_pixel-_stdDev;
+		    _mErrorBarLines[2] = xLoc + errorWidth;
+		    _mErrorBarLines[3] = depth_pixel-_stdDev;
+		    // Set lower horizontal line
+		    _mErrorBarLines[4] = xLoc;
+	        _mErrorBarLines[5] = depth_pixel+_stdDev;
+	        _mErrorBarLines[6] = xLoc + errorWidth;
+	        _mErrorBarLines[7] = depth_pixel+_stdDev;
+	        // Set vertical line
+	        _mErrorBarLines[8] = xLoc + errorWidth/2;
+	        _mErrorBarLines[9] = depth_pixel+_stdDev;
+	        _mErrorBarLines[10] = xLoc + errorWidth/2;
+	        _mErrorBarLines[11] = depth_pixel-_stdDev;
     	}
     }
     
@@ -475,6 +439,7 @@ public class SeismicImage extends View {
     	
     	// Set the seismic layer's color
     	mLayerPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    	mLayerPaint.setStrokeWidth(0);
     	mLayerPaint.setStyle(Style.FILL);
     	mLayerPaint.setColor(Color.CYAN);
     	
@@ -500,12 +465,4 @@ public class SeismicImage extends View {
         // Create GeoRZA computing object
         rza = new GeoRZA(thickness, v1, v2, depth, peakFreq, maxOffset);
     }
-	
-	public void setDepthMax(int depth_max) {
-		this.depth_max = depth_max;
-	}
-
-	public void setDepthMin(int depth_min) {
-		this.depth_min = depth_min;
-	}
 }

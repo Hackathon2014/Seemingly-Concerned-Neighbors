@@ -1,6 +1,5 @@
 package seemingly.concerned.neighbors.hackathon14;
 
-
 /**
  * @author Elias Arias, Colorado School of Mines CWP 
  * with contributions from Thomas Rapstine, Gabe Martinez, and Brent Putman
@@ -33,7 +32,7 @@ public class GeoRZA {
    * @param v2 velocity of the layer
    * @param zt depth to the top of the layer
    * @param freq peak frequency of the source
-   * @param offset offset value between source and reciever
+   * @param offset offset value between source and receiver
    */
   public void setValues(float th, float v1, float v2, float zt, float freq, 
       float offset) {
@@ -48,7 +47,7 @@ public class GeoRZA {
   /**
    * Calculates the times to the top and bottom of a subsurface layer for
    * zero-offset source-receiver geometry.
-   * @return array[2] of t01 and t02 (top and bottom times resepctively)
+   * @return array[2] of t01 and t02 (top and bottom times respectively)
    */
   public float[] goTimeCalcZeroOff() {
     float[] t0 = new float[2];
@@ -61,7 +60,7 @@ public class GeoRZA {
    * Calculates the times to the top and bottom of a subsurface layer for
    * zero-offset source-receiver geometry.
    * @param n number of offset values
-   * @return array[2][n] of t01 and t02 (top and bottom times resepctively)
+   * @return array[2][n] of t01 and t02 (top and bottom times respectively)
    */
   public float[][] goTimeCalcZeroOff(int n) {
     float[][] t0 = new float[n][2];
@@ -76,8 +75,8 @@ public class GeoRZA {
    * a specified offset source-receiver geometry.
    * @param t0 the times for the top and bottom of layer
    * @param vrms the RMS velocities 
-   * @param offset offset value between source and reciever
-   * @return array[2] of tx1 and tx2 (top and bottom times resepctively)
+   * @param offset offset value between source and receiver
+   * @return array[2] of tx1 and tx2 (top and bottom times respectively)
    */
   public float[] goTimeCalcNonZeroOff(float[] t0, float[] vrms, 
       float offset) {
@@ -92,8 +91,8 @@ public class GeoRZA {
    * a specified offset source-receiver geometry.
    * @param t0 the times for the top and bottom of layer
    * @param vrms the RMS velocities 
-   * @param offset offset value between source and reciever
-   * @return array[2][#off] of tx1 and tx2 (top and bottom times resepctively)
+   * @param offset offset value between source and receiver
+   * @return array[2][#off] of tx1 and tx2 (top and bottom times respectively)
    */
   public float[][] goTimeCalcNonZeroOff(float[][] t0, float[][] vrms, 
       float[] offset) {
@@ -135,7 +134,7 @@ public class GeoRZA {
    * Calculates the delta RMS velocities.
    * @param t the times for the top and bottom of layer
    * @param vrms the RMS velocities 
-   * @param offset offset value between source and reciever
+   * @param offset offset value between source and receiver
    * @return array[2] delta RMS velocities
    */
   public float[] goDelVrms(float[] t, float[] vrms, float offset) {
@@ -149,7 +148,7 @@ public class GeoRZA {
    * Calculates the delta RMS velocities.
    * @param t the times for the top and bottom of layer
    * @param vrms the RMS velocities 
-   * @param offset offset value between source and reciever
+   * @param offset offset value between source and receiver
    * @return array[2][#off] delta RMS velocities
    */
   public float[][] goDelVrms(float[][] t, float[][] vrms, 
@@ -166,7 +165,7 @@ public class GeoRZA {
    * Calculates the uncertainty in the depth of the top of layer.
    * @param t times for the top of layer
    * @param vrms RMS velocities 
-   * @param offset offset value between source and reciever
+   * @param offset offset value between source and receiver
    * @param delvrms delta RMS velocities
    * @return array[2] the uncertainties in top depth values (plus/minus)
    */
@@ -184,7 +183,7 @@ public class GeoRZA {
    * Calculates the uncertainty in the depth of the top of layer.
    * @param t times for the top of layer
    * @param vrms RMS velocities 
-   * @param offset offset value between source and reciever
+   * @param offset offset value between source and receiver
    * @param delvrms delta RMS velocities
    * @return array[2] the uncertainties in top depth values (plus/minus)
    */
@@ -202,7 +201,7 @@ public class GeoRZA {
    * Calculates the uncertainty in the depth of the top of layer.
    * @param t times for the top of layer
    * @param vrms RMS velocities 
-   * @param offset offset value between source and reciever
+   * @param offset offset value between source and receiver
    * @param delvrms delta RMS velocities
    * @return array[2] the uncertainties in top depth values (plus/minus)
    */
@@ -220,7 +219,7 @@ public class GeoRZA {
    * Calculates the uncertainty in the depth of the bottom of layer.
    * @param t times for the bottom of layer
    * @param vrms RMS velocities 
-   * @param offset offset value between source and reciever
+   * @param offset offset value between source and receiver
    * @param delvrms delta RMS velocities
    * @return array[2] the uncertainties in bottom depth values (plus/minus)
    */
@@ -256,7 +255,7 @@ public class GeoRZA {
    * Calculates the uncertainty in the depth of the bottom of layer.
    * @param t times for the bottom of layer
    * @param vrms RMS velocities 
-   * @param offset offset value between source and reciever
+   * @param offset offset value between source and receiver
    * @param delvrms delta RMS velocities
    * @return array[2] the uncertainties in bottom depth values (plus/minus)
    */
